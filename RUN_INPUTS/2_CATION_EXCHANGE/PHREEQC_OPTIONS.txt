@@ -1,0 +1,43 @@
+# PHREEQC_OPTIONS.txt  --  2_CATION_EXCHANGE (Appelo Na/K/NO3 column displaced by CaCl2)
+# Generic 2DSOIL<->PhreeqcRM coupling (2DSOIL_PHREEQCRM_MODEL). No PQ_MODE, no per-problem code.
+# Blank lines and '#' comments are ignored.
+
+PQI_FILE             PHREEQCRM_RUNFILE_CATION_EXCHANGE.pqi
+DATABASE             Amm_2DSOIL.dat              # supplies X exchanger + cation species/GFWs
+
+# --- PhreeqcRM unit selectors (solution: 1=mg/L 2=mol/L 3=kg/kg ; assemblage 0/1/2) ---
+UNITS_SOLUTION       2        # mol/L  (matches the original CB2 RM_SetUnitsSolution=2)
+UNITS_PPASSEMBLAGE   1
+UNITS_EXCHANGE       1        # mol/L water  (X exchanger)
+UNITS_SURFACE        1
+UNITS_GASPHASE       1
+UNITS_SSASSEMBLAGE   1
+UNITS_KINETICS       1
+COMPONENT_H2O        1
+PARTITION_UZ_SOLIDS  1
+
+# --- physical-state coupling modes : REAL saturation/porosity/representative-volume (CONC_BASIS=1 -> no theta double-count; see MANUSCRIPT/SOLUTION_VOLUME_CONVENTION.md) ---
+SATURATION_MODE      1        # REAL effective saturation (all-three-real); A/B-verified, max diff 1e-4 mg/L 2026-06-05
+REP_VOL_MODE         1        # REAL nodal cell volume (all-three-real)
+POROSITY_MODE        1        # REAL porosity (now used); A/B-verified invariant — UNITS_EXCHANGE=1 per-water so exchanger scales with water (max diff 1e-5 mg/L) 2026-06-05
+CONC_BASIS           1        # per-water
+CONC_UNIT_FACTOR     1000.0   # 2DSOIL Conc in mg/L; conv = 1/(gfw*1000) -> mol/L
+SLAB_WIDTH           1.0
+STEP_SECONDS         86400.0
+IC_SOURCE            PQI      # .pqi SOLUTION 1-500 + EXCHANGE 1-500 own the initial condition
+
+# --- which 2DSOIL modules 2DMAIZSIM calls (orchestrator gates) ---
+USE_MANAGEMENT       0
+USE_PONDED           0        # FERTIGATION imposes the surface BC; keep ponded OFF
+USE_TILLAGE          0
+USE_FERTIGATION      1        # CaCl2 surface injection via FERTIGATION + schedule
+USE_NMASSBALANCE     0
+
+# --- component <-> 2DSOIL solute map (solute_index matches the SoluteFile NumSol=5 order) ---
+# MAP <solute_index> <component_name> <role>   (X, H, O unmapped -> immobile, stay in PhreeqcRM)
+# Order verified against original CB2 PhreeqcRM.FOR: Conc 1=Ca 2=Cl 3=Na 4=K 5=N(NO3).
+MAP   1   Ca    mobile
+MAP   2   Cl    mobile
+MAP   3   Na    mobile
+MAP   4   K     mobile
+MAP   5   N     mobile

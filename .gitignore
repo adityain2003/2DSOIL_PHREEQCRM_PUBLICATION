@@ -1,0 +1,32 @@
+# ------- Visual Studio / Intel Fortran build output (regenerable) -------
+x64/
+.vs/
+*.obj
+*.pdb
+*.mod
+*.ilk
+*.exp
+*.tlog
+*.lastbuildstate
+*.recipe
+*.FileListAbsolute.txt
+BuildLog.htm
+
+# ------- PhreeqcRM CMake build tree (regenerable from PHREEQCRM/) -------
+PHREEQCRM_BUILD/
+
+# ------- Large 2DSOIL run outputs (regenerable; analysis uses .G04/.G05/.G06) -------
+*.G03
+*.G07
+
+# ------- Verbose per-run logs (run provenance is summarized in _SWEEP_SUMMARY.*) -------
+run_stderr.txt
+run_stdout.txt
+
+# ------- Python -------
+__pycache__/
+*.pyc
+
+# ------- OS cruft -------
+Thumbs.db
+.DS_Store

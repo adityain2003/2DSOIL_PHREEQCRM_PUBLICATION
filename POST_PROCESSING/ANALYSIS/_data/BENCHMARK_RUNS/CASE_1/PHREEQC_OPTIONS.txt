@@ -1,0 +1,49 @@
+# PHREEQC_OPTIONS.txt  --  BENCHMARK exercise (single inert solute [A], 1st-order decay)
+# Generic 2DSOIL<->PhreeqcRM coupling (2DSOIL_PHREEQCRM_MODEL).
+# Reproduces the original 1_BENCHMARKING_STUDY convention: mg/L, effective saturation.
+# Blank lines and '#' comments are ignored.
+
+PQI_FILE             PHREEQCRM_RUNFILE_BENCHMARKING_CASE_1.pqi
+DATABASE             Amm_2DSOIL.dat
+
+# --- PhreeqcRM unit selectors (1=mg/L 2=mol/L 3=kg/kg ; assemblage 0/1/2) ---
+UNITS_SOLUTION       2
+UNITS_PPASSEMBLAGE   1
+UNITS_EXCHANGE       1
+UNITS_SURFACE        1
+UNITS_GASPHASE       1
+UNITS_SSASSEMBLAGE   1
+UNITS_KINETICS       1
+COMPONENT_H2O        1
+PARTITION_UZ_SOLIDS  1
+
+# --- physical-state coupling modes ---
+SATURATION_MODE      1        # REAL effective saturation Se (1=effective, 2=theta, 3=unity). All-three-real; A/B-verified, RMSE vs analytical unchanged 2026-06-05
+REP_VOL_MODE         1        # REAL nodal cell volume (1=cell vol, 2=unity 1L). SOLN_VOL=S*phi*V_rep = real pore-water volume. See MANUSCRIPT/SOLUTION_VOLUME_CONVENTION.md
+POROSITY_MODE        1        # 1=thSat (REAL porosity, now used)  2=unity(batch). Real OK here: rate is SOLN_VOL-scaled; A/B-verified invariant (max diff 0.01 mg/L) 2026-06-05
+CONC_BASIS           1        # 1=per-water  2=theta-weighted
+CONC_UNIT_FACTOR     1000.0   # 2DSOIL Conc is ug/L; /1000 -> mg/L (verify on first build)
+SLAB_WIDTH           1.0      # cm, slab width for representative volume
+STEP_SECONDS         86400.0  # seconds per 2DSOIL day-step (dt*STEP_SECONDS -> RM_SetTimeStep)
+IC_SOURCE            NOD      # NOD = 2DSOIL .nod owns initial Conc ; PQI = .pqi SOLUTION owns
+
+# --- per-node redox report ---
+REPORT_REDOX         1        # 1 -> write PHREEQC_REDOX_OUT.txt (pH, pe, Eh per node, per day). Needs -pH true / -pe true in the .pqi SELECTED_OUTPUT (CASE_2 has them).
+
+# --- which 2DSOIL modules 2DMAIZSIM calls (orchestrator gates; CB1 set) ---
+USE_MANAGEMENT       0
+USE_PONDED           1
+USE_TILLAGE          1
+USE_FERTIGATION      1
+USE_NMASSBALANCE     0
+
+# --- component <-> 2DSOIL solute map ---
+# MAP  <solute_index>  <component_name>  <role>
+#   role: mobile | immobile | driver:ThNew     (solute_index = 0 when not mobile)
+#   components present in the .pqi but NOT listed here default to immobile.
+MAP   1   [A]   mobile
+
+
+
+
+

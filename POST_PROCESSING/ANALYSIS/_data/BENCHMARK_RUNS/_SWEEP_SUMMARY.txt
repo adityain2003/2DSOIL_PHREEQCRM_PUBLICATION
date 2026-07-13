@@ -1,0 +1,5 @@
+# Benchmark case sweep (generic engine)  started 2026-07-09 18:21:35
+CASE_1  PHREEQCRM_RUNFILE_BENCHMARKING_CASE_1.pqi      exit=0   810.0s  OK
+CASE_2  PHREEQCRM_RUNFILE_BENCHMARKING_CASE_2.pqi      exit=0   867.8s  OK
+CASE_3  PHREEQCRM_RUNFILE_BENCHMARKING_CASE_3.pqi      exit=0   860.9s  OK
+# finished 2026-07-09 19:03:54; bundle PQI_FILE restored to PHREEQCRM_RUNFILE_BENCHMARKING_CASE_2.pqi

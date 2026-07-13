@@ -1,0 +1,61 @@
+========================================================================================
+Error metrics: PHREEQC-2DSOIL numerical vs. 1-D analytical solution
+Domain depth = 750 cm; metrics in concentration-ratio units (dimensionless)
+Days compared: 1, 2, 3 (DAY 0 omitted - identical zero initial condition)
+Analytical evaluated on the dense 437-node simulated Y grid (no interpolation).
+========================================================================================
+
+Per-case, per-day metrics:
+  CASE  DAY   N        RMSE         MAE  MaxAbsError          MBE    NRMSE_%       R2      NSE
+CASE_1    1 437 2.44221e-05 1.81866e-05  4.87119e-05  1.81499e-05 0.00244226        1        1
+CASE_1    2 437 0.000393831  0.00032909  0.000633535   0.00032909  0.0394037        1 0.999999
+CASE_1    3 437  0.00113427 0.000698062    0.0076071  0.000698049   0.115101 0.999995 0.999988
+CASE_2    1 437 0.000493297 0.000326398   0.00109419 -0.000326285  0.0493297        1 0.999998
+CASE_2    2 437 0.000551485 0.000396275   0.00111608 -0.000344228  0.0551662        1 0.999997
+CASE_2    3 437 0.000811714 0.000629661   0.00383899 -0.000352729  0.0817725 0.999998 0.999993
+CASE_3    1 437   0.0212111   0.0201998    0.0255675   -0.0201998    2.29585 0.999973 0.995037
+CASE_3    2 437   0.0334051    0.031051    0.0432104    -0.031051    3.86257 0.999876 0.986125
+CASE_3    3 437   0.0408572   0.0373648    0.0563389   -0.0373648    5.02729  0.99972 0.973741
+
+Aggregate metrics per case (across DAY 1, 2, 3):
+         Mean_RMSE  Pooled_RMSE  Simple_RMSE  Mean_NRMSE_%    Mean_MAE  Max_AbsError  Max_AbsError_DAY  Mean_R2  Mean_NSE
+CASE                                                                                                                     
+CASE_1 0.000517507  0.000693364  0.000693364     0.0523157 0.000348446     0.0076071                 3 0.999998  0.999996
+CASE_2 0.000618832  0.000634129  0.000634129     0.0620895 0.000450778    0.00383899                 3 0.999999  0.999996
+CASE_3   0.0318245    0.0328386    0.0328386       3.72857   0.0295385     0.0563389                 3 0.999857  0.984968
+
+Overall metrics across ALL cases and ALL days (9 case-day combinations):
+Mean_RMSE                      0.0109869
+Mean_of_Per_Case_Pooled_RMSE   0.0113887
+Pooled_RMSE                    0.0189672
+Simple_RMSE                    0.0189672
+Mean_NRMSE_%                     1.28099
+Mean_MAE                       0.0101126
+Max_AbsError                   0.0563389
+Mean_R2                         0.999951
+Mean_NSE                        0.994986
+
+Maximum mismatch per case (largest |sim - analytical| across all days/depths):
+  CASE  DAY      Y  CONC_RATIO_ANALYTICAL  CONC_RATIO_SIMULATED  ABS_ERROR
+CASE_1    3      3              0.0145439              0.022151  0.0076071
+CASE_2    3      3             0.00735101               0.01119 0.00383899
+CASE_3    3 109.91               0.205769               0.14943  0.0563389
+
+Metric definitions:
+  N                : number of paired analytical depths
+  RMSE             : root mean squared error (sim - analytical)
+  MAE              : mean absolute error
+  MaxAbsError      : maximum absolute error across the profile
+  MBE              : mean bias error (positive = numerical overshoots)
+  NRMSE_%          : RMSE normalized by analytical range, expressed as %
+  R2               : Pearson coefficient of determination
+  NSE              : Nash-Sutcliffe efficiency (1.0 = perfect match)
+  Pooled_RMSE      : sqrt(sum(N_i * RMSE_i^2) / sum(N_i)), weighted by N
+  Simple_RMSE      : RMSE on the concatenated residual vector for the group
+                     (= Pooled_RMSE when all N_i equal; included as cross-check)
+  Mean_of_Per_Case_Pooled_RMSE :
+                     arithmetic mean of the three per-case Pooled_RMSE values
+                     (treats each CASE as the unit of analysis, not each case-day)
+  Max_AbsError     : largest |error| seen for the case across DAY 1, 2, 3
+  Max_AbsError_DAY : the day on which Max_AbsError occurred
+========================================================================================

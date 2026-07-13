@@ -1,0 +1,53 @@
+# PHREEQC_OPTIONS.txt  --  3_NITRATE_LEACHING (Murphy sand, Delhi series). Active deck = FIRST_ORDER (FK);
+# the kinetic variants (NR/ZK/ZK_ND/FK/FK_ND/CK) are selected by swapping PQI_FILE below.
+# Generic 2DSOIL<->PhreeqcRM coupling (2DSOIL_PHREEQCRM_MODEL). No PQ_MODE, no per-problem code.
+# 3-step kinetic N cascade (mineralization -> nitrification -> denitrification) defined inline
+# in the .pqi as bracketed pseudo-species. Only NO3 is mobile; NH4 / organic-N / N2O are immobile.
+
+PQI_FILE             PHREEQCRM_RUNFILE_NITRATE_LEACHING_CONDITIONAL_KINETICS.pqi
+DATABASE             Amm_2DSOIL.dat              # base DB; the .pqi defines all N pseudo-species inline
+
+# --- PhreeqcRM unit selectors (solution: 1=mg/L 2=mol/L 3=kg/kg ; assemblage 0=mol/L cell 1=mol/L water) ---
+UNITS_SOLUTION       2        # mol/L  (matches original CB3 RM_SetUnitsSolution=2 and '.pqi units mol/l')
+UNITS_PPASSEMBLAGE   0        # mol/L cell (no EQUILIBRIUM_PHASES anyway)
+UNITS_EXCHANGE       1        # no EXCHANGE in this .pqi
+UNITS_SURFACE        0        # no SURFACE in this .pqi
+UNITS_GASPHASE       1        # no GAS_PHASE (N2O is a pseudo-solute, not a gas phase)
+UNITS_SSASSEMBLAGE   1
+UNITS_KINETICS       0        # mol/L cell (matches original CB3 RM_SetUnitsKinetics=0)
+COMPONENT_H2O        1        # CB3 SetComponentH2O=1
+PARTITION_UZ_SOLIDS  0        # CB3 SetPartitionUZSolids=0
+
+# --- physical-state coupling : BATCH 1-L reactor per cell (rates integrate as rate*TIME, NOT SOLN_VOL-scaled) ---
+SATURATION_MODE      3        # unity (batch)
+REP_VOL_MODE         2        # unity (1 L)
+POROSITY_MODE        2        # unity -> SOLN_VOL = sat*por*repv = 1 L per cell
+CONC_BASIS           2        # theta-weighted: push c=ThNew*Conc*conv, pull Conc=c/(ThNew*conv)
+                              #   -> reproduces CB3 stepping math ThNew*Conc/(GFW*1000). If leached NO3
+                              #   does not match the previous code, A/B test CONC_BASIS 1 (per-water).
+CONC_UNIT_FACTOR     1000.0   # 2DSOIL NO3 in mg/L; conv = 1/(gfw[NITRATE]*1000) = 1/(62.01*1000) -> mol/L
+SLAB_WIDTH           1.0
+STEP_SECONDS         86400.0  # 2DSOIL day-step -> seconds (CB3 Step*86400)
+IC_SOURCE            NOD      # 2DSOIL .nod NO3 owns the mobile IC; the .pqi SOLUTION owns the immobile
+                              #   pools (ORGANIC_N, AMMONIUM) and the THETA_VMC seed
+
+# --- generic per-step reaction / component-delta mass-balance report ---
+REPORT_KINETICS      1                     # 1 = write per-step domain totals (moles)
+KINETIC_PREFIX       dk_                    # pick up every selected-output column dk_*
+KINETIC_FILE         REACTION_TOTALS.txt    # one row/step: dk_<rxn> moles + d[<component>]
+
+# --- orchestrator gates: which 2DSOIL modules 2DMAIZSIM calls ---
+USE_MANAGEMENT       0
+USE_PONDED           0        # native Call Irrigation() supplies the 3 sprinkler water events (.irr)
+USE_TILLAGE          0
+USE_FERTIGATION      0        # grid CodeC=0: NO surface-N injection; clean irrigation water
+USE_NMASSBALANCE     0
+
+# --- component <-> 2DSOIL solute map (SoluteFile NumSol=1; only NO3 transported) ---
+# MAP <solute_index> <component_name> <role>
+# Names use the .pqi's bracketed master species. If RM_GetComponents reports them WITHOUT brackets
+# (e.g. 'NITRATE'/'THETA_VMC'), the driver aborts at PQ_RESOLVE_MAP listing the real names -> edit here.
+MAP   1   [NITRATE]    mobile        # NO3 -> 2DSOIL Conc column 1 (transported, leached)
+MAP   0   [THETA_VMC]  driver:ThNew  # soil moisture pushed in each step so the RATES gate denitrification
+# [AMMONIUM], [ORGANIC_N], [NITROUS_GAS], H2O, O : intentionally UNMAPPED -> immobile, stay in PhreeqcRM
+

@@ -1,0 +1,7 @@
+INPUT FILE FOR FERTIGATION SCHEDULE -- cation exchange (inject CaCl2 from the top)
+NUMBER OF FERTIGATIONS (MAX = 100)
+1
+CodeS CodeW : CodeS=+3 prescribed concentration (Dirichlet), CodeW=1 prescribed head
+3	1
+ORDER: START_DATE START_HOUR END_DATE END_HOUR  then NumSol solute BCs [Ca Cl Na K N] (mg/L)  then WATER_BC
+'01/01/2024' 0 '01/31/2024' 23  24.048 42.544 0.0 0.0 0.0  1.0

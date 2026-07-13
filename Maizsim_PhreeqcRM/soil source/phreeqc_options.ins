@@ -1,0 +1,55 @@
+! phreeqc_options.ins
+! Shared options for the GENERIC 2DSOIL<->PhreeqcRM coupling (2DSOIL_PHREEQCRM_MODEL).
+! Filled ONCE at startup by Read_Phreeqc_Options() from PHREEQC_OPTIONS.txt, then
+! consumed by the single generic driver in PhreeqcRM.FOR.
+! NOTE: public.ins uses implicit typing; every name here is declared explicitly.
+! Three named COMMON blocks: /PQ_OPT/ (numeric), /PQ_ORCH/ (orchestrator gates,
+! numeric), and /PQ_OPT_C/ (character) -- character is kept in its own block because
+! Fortran forbids mixing character and numeric data in one block.
+      INTEGER, PARAMETER :: PQ_MAXMAP = 30
+! --- doubles first (8-byte) to avoid common-block alignment padding ---
+      DOUBLE PRECISION PQ_CONC_FACTOR, PQ_SLAB_WIDTH, PQ_STEP_SECS
+      DOUBLE PRECISION PQ_MAP_CONV(PQ_MAXMAP)
+! --- PhreeqcRM unit / property selectors ---
+      INTEGER PQ_UNITS_SOLN, PQ_UNITS_PPA, PQ_UNITS_EXCH, PQ_UNITS_SURF
+      INTEGER PQ_UNITS_GAS, PQ_UNITS_SS, PQ_UNITS_KIN
+      INTEGER PQ_COMP_H2O, PQ_PART_UZ
+! --- coupling modes ---
+      INTEGER PQ_SAT_MODE, PQ_REPVOL_MODE, PQ_CONC_BASIS, PQ_IC_SOURCE
+      INTEGER PQ_POR_MODE
+! --- generic kinetic-reaction / component-delta report toggle ---
+      INTEGER PQ_REPORT_KIN
+! --- generic per-node pH / pe / Eh (redox) report toggle ---
+      INTEGER PQ_REPORT_REDOX
+! --- component <-> 2DSOIL solute map ---
+      INTEGER PQ_NMAP
+      INTEGER PQ_MAP_SOLUTE(PQ_MAXMAP), PQ_MAP_ROLE(PQ_MAXMAP)
+      INTEGER PQ_MAP_DRIVER(PQ_MAXMAP), PQ_MAP_CIDX(PQ_MAXMAP)
+      COMMON /PQ_OPT/ PQ_CONC_FACTOR, PQ_SLAB_WIDTH, PQ_STEP_SECS,
+     -  PQ_MAP_CONV, PQ_UNITS_SOLN, PQ_UNITS_PPA, PQ_UNITS_EXCH,
+     -  PQ_UNITS_SURF, PQ_UNITS_GAS, PQ_UNITS_SS, PQ_UNITS_KIN,
+     -  PQ_COMP_H2O, PQ_PART_UZ, PQ_SAT_MODE, PQ_REPVOL_MODE,
+     -  PQ_CONC_BASIS, PQ_IC_SOURCE, PQ_NMAP, PQ_MAP_SOLUTE,
+     -  PQ_MAP_ROLE, PQ_MAP_DRIVER, PQ_MAP_CIDX, PQ_POR_MODE,
+     -  PQ_REPORT_KIN, PQ_REPORT_REDOX
+! --- orchestrator gates: which 2DSOIL modules 2DMAIZSIM calls ---
+      INTEGER PQ_USE_MGMT, PQ_USE_PONDED, PQ_USE_TILL
+      INTEGER PQ_USE_FERT, PQ_USE_NMB
+      COMMON /PQ_ORCH/ PQ_USE_MGMT, PQ_USE_PONDED, PQ_USE_TILL,
+     -  PQ_USE_FERT, PQ_USE_NMB
+      CHARACTER(LEN=100) PQ_PQI_FILE, PQ_DATABASE, PQ_KIN_FILE
+      CHARACTER(LEN=12)  PQ_KIN_PREFIX
+      CHARACTER(LEN=40)  PQ_MAP_NAME(PQ_MAXMAP)
+      COMMON /PQ_OPT_C/ PQ_PQI_FILE, PQ_DATABASE, PQ_MAP_NAME,
+     -  PQ_KIN_FILE, PQ_KIN_PREFIX
+! Role codes: 1 = mobile (transported by 2DSOIL); 2 = driver (pushed each step
+!   from a 2DSOIL field, e.g. ThNew, never pulled back); 3 = immobile (lives in
+!   PhreeqcRM, refreshed-before-push, never written from / read to Conc).
+! Driver field codes: 1 = ThNew (volumetric water content).
+! SAT_MODE: 1 = effective (ThNew-thR)/(ThTot-thR); 2 = ThNew; 3 = unity (batch).
+! REPVOL_MODE: 1 = cell water volume (nodeArea*SLAB_WIDTH*0.001 L); 2 = unity (1 L).
+! POR_MODE: 1 = thSat(M) (true porosity); 2 = unity (1.0). Set SAT_MODE=3, REPVOL_MODE=2,
+!   POR_MODE=2 together to force SOLN_VOL = repv*por*sat = 1 (batch reactor) so that
+!   SOLN_VOL-scaled .pqi rates (e.g. zero-order production) integrate to exactly rate*TIME.
+! CONC_BASIS: 1 = per-water (c = Conc*conv); 2 = theta-weighted (c = ThNew*Conc*conv).
+! IC_SOURCE: 1 = NOD (2DSOIL .nod Conc owns IC); 2 = PQI (.pqi SOLUTION owns IC).
